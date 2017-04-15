@@ -1,0 +1,9 @@
+.form-textarea-wrapper.textcount_warning .text-full {
+  border-color: #FFD700; }
+.form-textarea-wrapper.textcount_warning .textfield_counter_counter .remaining_count {
+  color: #FFD700; }
+
+.form-textarea-wrapper.textcount_over .text-full {
+  border-color: #FF0000; }
+.form-textarea-wrapper.textcount_over .textfield_counter_counter .remaining_count {
+  color: #FF0000; }

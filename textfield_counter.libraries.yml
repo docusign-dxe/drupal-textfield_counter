@@ -1,0 +1,14 @@
+base:
+  css:
+    theme:
+      css/textfield_counter.css: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupalSettings
+
+textarea:
+  js:
+    js/textfield_counter-textarea.js: {}
+  dependencies:
+    - textfield_counter/base

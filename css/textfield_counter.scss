@@ -1,0 +1,31 @@
+$warning-color:#FFD700;
+$over-color:#FF0000;
+
+.form-textarea-wrapper.textcount_warning
+{
+	.text-full
+	{
+		border-color:$warning-color;
+	}
+	.textfield_counter_counter
+	{
+		.remaining_count
+		{
+			color:$warning-color;
+		}
+	}
+}
+.form-textarea-wrapper.textcount_over
+{
+	.text-full
+	{
+		border-color:$over-color;
+	}
+	.textfield_counter_counter
+	{
+		.remaining_count
+		{
+			color:$over-color
+		}
+	}
+}

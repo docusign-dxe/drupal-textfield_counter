@@ -1,0 +1,7 @@
+name: Text field counter
+description: Creates field formatters with character counts for text fields
+core: 8.x
+type: module
+
+dependencies:
+  - text
