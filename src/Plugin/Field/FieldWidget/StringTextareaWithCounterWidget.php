@@ -101,7 +101,7 @@ class StringTextareaWithCounterWidget extends StringTextareaWidget
 
 			$element['#attached']['library'][] = 'textfield_counter/counter';
 			$field_definition_id = str_replace('.', '--', $items->getFieldDefinition()->id());
-			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['key'][] = $key;
+			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['key'][$delta] = $key;
 			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['maxlength'] = (int) $this->getSetting('maxlength');
 			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['counterPosition'] = $this->getSetting('counter_position');
 		}
