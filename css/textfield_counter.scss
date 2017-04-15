@@ -1,9 +1,10 @@
 $warning-color:#FFD700;
 $over-color:#FF0000;
 
-.form-textarea-wrapper.textcount_warning
+.form-textarea-wrapper.textcount_warning,
+.form-item.textcount_warning
 {
-	.text-full
+	.textfield-counter-element
 	{
 		border-color:$warning-color;
 	}
@@ -15,9 +16,11 @@ $over-color:#FF0000;
 		}
 	}
 }
-.form-textarea-wrapper.textcount_over
+
+.form-textarea-wrapper.textcount_over,
+.form-item.textcount_over
 {
-	.text-full
+	.textfield-counter-element
 	{
 		border-color:$over-color;
 	}

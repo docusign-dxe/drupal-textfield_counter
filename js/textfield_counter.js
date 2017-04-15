@@ -33,36 +33,41 @@
 		}
 	}
 
-	function textareaWatcher(settings)
+	function textWatcher(settings)
 	{
-		$.each(settings.textfieldCounterTextarea.key, function(index)
+		$.each(settings.textfieldCounter, function(index)
 		{
-			$("." + settings.textfieldCounterTextarea.key[index]).once("textfield-counter-textarea").each(function()
+			var fieldSettings = settings.textfieldCounter[index];
+
+			$.each(fieldSettings.key, function(index)
 			{
-				var counter, maxlength, remaining;
-
-				maxlength = settings.textfieldCounterTextarea.maxlength;
-				remaining = maxlength - Number($(this).val().length);
-				counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t("Remaining: <span class='remaining_count'>@count</span>", {"@count":remaining}));
-
-				if(settings.textfieldCounterTextarea.counterPosition === "before")
+				$("." + fieldSettings.key[index]).once("textfield-counter-text-watcher").each(function()
 				{
-					counter.insertBefore($(this));
-				}
-				else
-				{
-					counter.insertAfter($(this));
-				}
+					var counter, maxlength, remaining;
 
-				checkClasses($(this).parent(), remaining);
-
-				$(this).keyup(function()
-				{
+					maxlength = fieldSettings.maxlength;
 					remaining = maxlength - Number($(this).val().length);
+					counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t("Remaining: <span class='remaining_count'>@count</span>", {"@count":remaining}));
 
-					counter.children(".remaining_count:first").text(remaining);
+					if(fieldSettings.counterPosition === "before")
+					{
+						counter.insertBefore($(this));
+					}
+					else
+					{
+						counter.insertAfter($(this));
+					}
 
 					checkClasses($(this).parent(), remaining);
+
+					$(this).keyup(function()
+					{
+						remaining = maxlength - Number($(this).val().length);
+	
+						counter.children(".remaining_count:first").text(remaining);
+	
+						checkClasses($(this).parent(), remaining);
+					});
 				});
 			});
 		});
@@ -89,7 +94,7 @@
 	Drupal.behaviors.textfieldCounterTextarea = {
 		attach:function(context, settings)
 		{
-			textareaWatcher(settings);
+			textWatcher(settings);
 			formSubmitListener(context);
 		}
 	};

@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\StringTextareaWidget;
 
 /**
- * Plugin implementation of the 'string_textarea' widget.
+ * Plugin implementation of the 'string_textarea_with_counter' widget.
  *
  * @FieldWidget(
  *   id = "string_textarea_width_counter",
@@ -89,19 +89,21 @@ class StringTextareaWithCounterWidget extends StringTextareaWidget
 			$keys = [$entity->getEntityTypeId()];
 			$keys[] = $entity->id() ? $entity->id() : 0;
 			$keys[] = str_replace('.', '--', $items->getFieldDefinition()->id());
-			$keys[] = 'text-full-with-counter';
+			$keys[] = 'string-textarea-with-counter';
 			$keys[] = $delta;
 
 			$key = implode('-', $keys);
 
 			$element['value']['#attributes']['class'][] = $key;
+			$element['value']['#attributes']['class'][] = 'textfield-counter-element';
 			$element['value']['#element_validate'][] = [get_class($this), 'validateElement'];
 			$element['value']['#textfield-maxlength'] = $this->getSetting('maxlength');
 
-			$element['#attached']['library'][] = 'textfield_counter/textarea';
-			$element['#attached']['drupalSettings']['textfieldCounterTextarea']['key'][] = $key;
-			$element['#attached']['drupalSettings']['textfieldCounterTextarea']['maxlength'] = (int) $this->getSetting('maxlength');
-			$element['#attached']['drupalSettings']['textfieldCounterTextarea']['counterPosition'] = $this->getSetting('counter_position');
+			$element['#attached']['library'][] = 'textfield_counter/counter';
+			$field_definition_id = str_replace('.', '--', $items->getFieldDefinition()->id());
+			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['key'][] = $key;
+			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['maxlength'] = (int) $this->getSetting('maxlength');
+			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['counterPosition'] = $this->getSetting('counter_position');
 		}
 
 		return $element;
@@ -113,7 +115,7 @@ class StringTextareaWithCounterWidget extends StringTextareaWidget
 		$value = NestedArray::getValue($form_state->getValues(), $element['#parents'], $input_exists);
 		if(strlen($value) > $element['#textfield-maxlength'])
 		{
-			$form_state->setError($element, t('%element_title cannot be more than @count characters', ['%element_title' => $element['#title'], '@count' => $element['#textfield-maxlength']]));
+			$form_state->setError($element, t('@name cannot be longer than %max characters but is currently %length characters long.', ['@name' => $element['#title'], '%max' => $element['#textfield-maxlength'], '%length' => strlen($value)]));
 		}		
 	}
 
