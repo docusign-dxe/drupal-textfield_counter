@@ -20,6 +20,8 @@ use Drupal\text\Plugin\Field\FieldWidget\TextareaWithSummaryWidget;
  */
 class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget
 {
+	use TextFieldCounterWidgetTrait;
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -38,23 +40,8 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget
 	{
 		$form = parent::settingsForm($form, $form_state);
 
-		$form['maxlength'] = [
-			'#type' => 'number',
-			'#title' => $this->t('Maximum number of characters'),
-			'#min' => 0,
-			'#default_value' => $this->getSetting('maxlength'),
-			'#description' => $this->t('Setting this value to zero will disable the counter'),
-		];
-
-		$form['counter_position'] = [
-			'#type' => 'select',
-			'#title' => $this->t('Counter position'),
-			'#options' => [
-				'before' => $this->translateValue('before'),
-				'after' => $this->translateValue('after'),
-			],
-			'#default_value' => $this->getSetting('counter_position'),
-		];
+		$this->addMaxlengthSettingsFormElement($form, $this->getSetting('maxlength'));
+		$this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'));
 
 		return $form;
 	}
@@ -67,10 +54,10 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget
 		$summary = parent::settingsSummary();
 	
 		$maxlength = $this->getSetting('maxlength');
-		$summary[] = $this->t('Maximum number of characters: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
+		$summary[] = $this->addMaxlengthSummary($maxlength);
 		if($maxlength)
 		{
-			$summary[] = $this->t('Counter position: @position', ['@position' => $this->translateValue($this->getSetting('counter_position'))]);
+			$summary[] = $this->addPositionSummary($this->getSetting('counter_position'));
 		}
 
 		return $summary;
@@ -86,57 +73,15 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget
 		if($this->getSetting('maxlength'))
 		{
 			$entity = $items->getEntity();
-			$keys = [$entity->getEntityTypeId()];
-			$keys[] = $entity->id() ? $entity->id() : 0;
-			$keys[] = str_replace('.', '--', $items->getFieldDefinition()->id());
-			$keys[] = 'text-textarea-with-counter';
-			$keys[] = $delta;
-
-			$key = implode('-', $keys);
-
-			$element['#attributes']['class'][] = $key;
-			$element['#attributes']['class'][] = 'textfield-counter-element';
-			$element['#element_validate'][] = [get_class($this), 'validateElement'];
-			$element['#textfield-maxlength'] = $this->getSetting('maxlength');
-
-			$element['#attached']['library'][] = 'textfield_counter/counter';
-			$field_definition_id = str_replace('.', '--', $items->getFieldDefinition()->id());
-			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['key'][$delta] = $key;
-			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['maxlength'] = (int) $this->getSetting('maxlength');
-			$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['counterPosition'] = $this->getSetting('counter_position');
+			$field_defintion = $items->getFieldDefinition();
+			$maxlength = $this->getSetting('maxlength');
+			$position = $this->getSetting('counter_position');
+			$this->addFieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
+			$element['#textfield-maxlength'] = $maxlength;
+			$classes = class_uses($this);
+			$element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];
 		}
 
 		return $element;
-	}
-
-	public static function validateElement(array $element, FormStateInterface $form_state)
-	{
-		$input_exists = FALSE;
-		$value = NestedArray::getValue($form_state->getValues(), $element['#parents'], $input_exists);
-		$value = is_array($value) ? $value['value'] : $value;
-
-		if(strlen($value) > $element['#textfield-maxlength'])
-		{
-			$form_state->setError($element, t('@name cannot be longer than %max characters but is currently %length characters long.', ['@name' => $element['#title'], '%max' => $element['#textfield-maxlength'], '%length' => strlen($value)]));
-		}		
-	}
-
-	/**
-	 * A unified translation function to translate values provided by this
-	 * module.
-	 *
-	 * @param string $value
-	 *   The key of the item to be translated
-	 *
-	 * @return string
-	 *   The translated value
-	 */
-	private function translateValue($value) {
-		$values = [
-			'before' => $this->t('Before'),
-			'after' => $this->t('After'),
-		];
-
-		return $values[$value];
 	}
 }

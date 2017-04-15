@@ -46,7 +46,7 @@
 					var counter, maxlength, remaining;
 
 					maxlength = fieldSettings.maxlength;
-					remaining = maxlength - Number($(this).val().length);
+					remaining = maxlength - $(this).val().length;
 					counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t("Remaining: <span class='remaining_count'>@count</span>", {"@count":remaining}));
 
 					if(fieldSettings.counterPosition === "before")
@@ -62,7 +62,7 @@
 
 					$(this).keyup(function()
 					{
-						remaining = maxlength - Number($(this).val().length);
+						remaining = maxlength - $(this).val().length;
 	
 						counter.children(".remaining_count:first").text(remaining);
 	

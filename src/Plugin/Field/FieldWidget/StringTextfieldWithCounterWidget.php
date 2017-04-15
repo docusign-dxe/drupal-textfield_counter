@@ -20,6 +20,8 @@ use Drupal\Core\Field\Plugin\Field\FieldWidget\StringTextfieldWidget;
  */
 class StringTextfieldWithCounterWidget extends StringTextfieldWidget
 {
+	use TextFieldCounterWidgetTrait;
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -37,15 +39,7 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget
 	{
 		$form = parent::settingsForm($form, $form_state);
 
-		$form['counter_position'] = [
-			'#type' => 'select',
-			'#title' => $this->t('Counter position'),
-			'#options' => [
-				'before' => $this->translateValue('before'),
-				'after' => $this->translateValue('after'),
-			],
-			'#default_value' => $this->getSetting('counter_position'),
-		];
+		$this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'));
 
 		return $form;
 	}
@@ -57,7 +51,7 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget
 	{
 		$summary = parent::settingsSummary();
 	
-		$summary[] = $this->t('Counter position: @position', ['@position' => $this->translateValue($this->getSetting('counter_position'))]);
+		$summary[] = $this->addPositionSummary($this->getSetting('counter_position'));
 
 		return $summary;
 	}
@@ -70,42 +64,11 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget
 		$element = parent::formElement($items, $delta, $element, $form, $form_state);
 
 		$entity = $items->getEntity();
-		$keys = [$entity->getEntityTypeId()];
-		$keys[] = $entity->id() ? $entity->id() : 0;
-		$keys[] = str_replace('.', '--', $items->getFieldDefinition()->id());
-		$keys[] = 'string-textfield-with-counter';
-		$keys[] = $delta;
-
-		$key = implode('-', $keys);
-
-		$element['value']['#attributes']['class'][] = $key;
-		$element['value']['#attributes']['class'][] = 'textfield-counter-element';
-
-		$element['#attached']['library'][] = 'textfield_counter/counter';
-		$field_definition_id = str_replace('.', '--', $items->getFieldDefinition()->id());
-		$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['key'][$delta] = $key;
-		$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['maxlength'] = (int) $this->getFieldSetting('max_length');
-		$element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['counterPosition'] = $this->getSetting('counter_position');
+		$field_defintion = $items->getFieldDefinition();
+		$maxlength = $this->getFieldSetting('max_length');
+		$position = $this->getSetting('counter_position');
+		$this->addFieldFormElement($element['value'], $entity, $field_defintion, $delta, $maxlength, $position);
 
 		return $element;
-	}
-
-	/**
-	 * A unified translation function to translate values provided by this
-	 * module.
-	 *
-	 * @param string $value
-	 *   The key of the item to be translated
-	 *
-	 * @return string
-	 *   The translated value
-	 */
-	private function translateValue($value) {
-		$values = [
-			'before' => $this->t('Before'),
-			'after' => $this->t('After'),
-		];
-
-		return $values[$value];
 	}
 }
