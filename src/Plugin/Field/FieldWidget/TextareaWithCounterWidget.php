@@ -5,20 +5,20 @@ namespace Drupal\textfield_counter\Plugin\Field\FieldWidget;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\text\Plugin\Field\FieldWidget\TextareaWithSummaryWidget;
+use Drupal\text\Plugin\Field\FieldWidget\TextareaWidget;
 
 /**
- * Plugin implementation of the 'text_textarea_with_summary_and_counter' widget.
+ * Plugin implementation of the 'text_textarea_with_counter' widget.
  *
  * @FieldWidget(
- *   id = "text_textarea_with_summary_and_counter",
- *   label = @Translation("Text area with a summary and counter"),
+ *   id = "text_textarea_with_counter",
+ *   label = @Translation("Text area (multiple rows) with counter"),
  *   field_types = {
- *     "text_with_summary"
+ *     "text_long"
  *   }
  * )
  */
-class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget
+class TextareaWithCounterWidget extends TextareaWidget
 {
 	/**
 	 * {@inheritdoc}

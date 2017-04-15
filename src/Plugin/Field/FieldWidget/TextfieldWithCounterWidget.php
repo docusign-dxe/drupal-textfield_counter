@@ -5,20 +5,20 @@ namespace Drupal\textfield_counter\Plugin\Field\FieldWidget;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Field\Plugin\Field\FieldWidget\StringTextfieldWidget;
+use Drupal\text\Plugin\Field\FieldWidget\TextfieldWidget;
 
 /**
- * Plugin implementation of the 'string_textfield_with_counter' widget.
+ * Plugin implementation of the 'text_textfield_with_counter' widget.
  *
  * @FieldWidget(
- *   id = "string_textfield_with_counter",
- *   label = @Translation("Textfield with counter"),
+ *   id = "text_textfield_with_counter",
+ *   label = @Translation("Text field with counter"),
  *   field_types = {
- *     "string"
- *   }
+ *     "text"
+ *   },
  * )
  */
-class StringTextfieldWithCounterWidget extends StringTextfieldWidget
+class TextfieldWithCounterWidget extends TextfieldWidget
 {
 	/**
 	 * {@inheritdoc}
@@ -73,13 +73,13 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget
 		$keys = [$entity->getEntityTypeId()];
 		$keys[] = $entity->id() ? $entity->id() : 0;
 		$keys[] = str_replace('.', '--', $items->getFieldDefinition()->id());
-		$keys[] = 'string-textfield-with-counter';
+		$keys[] = 'text-textfield-with-counter';
 		$keys[] = $delta;
 
 		$key = implode('-', $keys);
 
-		$element['value']['#attributes']['class'][] = $key;
-		$element['value']['#attributes']['class'][] = 'textfield-counter-element';
+		$element['#attributes']['class'][] = $key;
+		$element['#attributes']['class'][] = 'textfield-counter-element';
 
 		$element['#attached']['library'][] = 'textfield_counter/counter';
 		$field_definition_id = str_replace('.', '--', $items->getFieldDefinition()->id());
