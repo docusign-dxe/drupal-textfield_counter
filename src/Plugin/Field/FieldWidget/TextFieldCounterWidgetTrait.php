@@ -3,6 +3,7 @@
 namespace Drupal\textfield_counter\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
@@ -70,7 +71,7 @@ trait TextFieldCounterWidgetTrait
 		$value = is_array($value) ? $value['value'] : $value;
 		$parts = explode(PHP_EOL, $value);
 		$newline_count = count($parts) - 1;
-		$value_length = mb_strlen($value) - $newline_count;
+		$value_length = Unicode::strlen($value) - $newline_count;
 		if($value_length > $element['#textfield-maxlength'])
 		{
 			$form_state->setError($element, t('@name cannot be longer than %max characters but is currently %length characters long.', ['@name' => $element['#title'], '%max' => $element['#textfield-maxlength'], '%length' => $value_length]));
