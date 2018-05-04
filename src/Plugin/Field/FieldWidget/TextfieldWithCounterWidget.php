@@ -2,7 +2,6 @@
 
 namespace Drupal\textfield_counter\Plugin\Field\FieldWidget;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\text\Plugin\Field\FieldWidget\TextfieldWidget;
@@ -18,57 +17,56 @@ use Drupal\text\Plugin\Field\FieldWidget\TextfieldWidget;
  *   },
  * )
  */
-class TextfieldWithCounterWidget extends TextfieldWidget
-{
-	use TextFieldCounterWidgetTrait;
+class TextfieldWithCounterWidget extends TextfieldWidget {
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public static function defaultSettings()
-	{
-		return [
-			'counter_position' => 'after',
-		] + parent::defaultSettings();
-	}
+  use TextFieldCounterWidgetTrait;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function settingsForm(array $form, FormStateInterface $form_state)
-	{
-		$form = parent::settingsForm($form, $form_state);
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultSettings() {
+    return [
+      'counter_position' => 'after',
+    ] + parent::defaultSettings();
+  }
 
-		$this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'));
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
 
-		return $form;
-	}
+    $form = parent::settingsForm($form, $form_state);
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function settingsSummary()
-	{
-		$summary = parent::settingsSummary();
-	
-		$summary[] = $this->addPositionSummary($this->getSetting('counter_position'));
+    $this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'));
 
-		return $summary;
-	}
+    return $form;
+  }
 
-	/**
-	* {@inheritdoc}
-	*/
-	public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state)
-	{
-		$element = parent::formElement($items, $delta, $element, $form, $form_state);
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsSummary() {
+    $summary = parent::settingsSummary();
 
-		$entity = $items->getEntity();
-		$field_defintion = $items->getFieldDefinition();
-		$maxlength = $this->getFieldSetting('max_length');
-		$position = $this->getSetting('counter_position');
-		$this->addFieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
+    $summary[] = $this->addPositionSummary($this->getSetting('counter_position'));
 
-		return $element;
-	}
+    return $summary;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+
+    $element = parent::formElement($items, $delta, $element, $form, $form_state);
+
+    $entity = $items->getEntity();
+    $field_defintion = $items->getFieldDefinition();
+    $maxlength = $this->getFieldSetting('max_length');
+    $position = $this->getSetting('counter_position');
+    $this->addFieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
+
+    return $element;
+  }
+
 }
