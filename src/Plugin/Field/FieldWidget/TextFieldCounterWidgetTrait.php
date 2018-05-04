@@ -49,7 +49,12 @@ trait TextFieldCounterWidgetTrait
 	{
 		$keys = [$entity->getEntityTypeId()];
 		$keys[] = $entity->id() ? $entity->id() : 0;
-		$field_definition_id = str_replace('.', '--', $fieldDefinition->id());
+		if(method_exists($fieldDefinition, 'id')) {
+		    $field_definition_id = str_replace('.', '--', $fieldDefinition->id());
+		}
+		else {
+		    $field_definition_id = "{$entity->getEntityTypeId()}--{$entity->getType()}--{$fieldDefinition->getName()}";
+		}
 		$keys[] = $field_definition_id;
 		$keys[] = $delta;
 
