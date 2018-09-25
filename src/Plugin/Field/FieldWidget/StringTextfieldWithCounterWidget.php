@@ -76,7 +76,9 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
       $this->fieldFormElement($element['value'], $entity, $field_defintion, $delta, $maxlength, $position);
       $element['value']['#textfield-maxlength'] = $maxlength;
       $classes = class_uses($this);
-      $element['value']['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];
+      if (count($classes)) {
+        $element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];
+      }
     }
 
     return $element;

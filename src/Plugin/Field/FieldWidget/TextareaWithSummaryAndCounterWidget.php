@@ -75,7 +75,9 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
       $this->fieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
       $element['#textfield-maxlength'] = $maxlength;
       $classes = class_uses($this);
-      $element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];
+      if (count($classes)) {
+        $element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];
+      }
     }
 
     return $element;
