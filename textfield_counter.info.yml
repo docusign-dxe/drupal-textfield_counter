@@ -1,5 +1,5 @@
-name: Text Field Counter
-description: Creates field formatters with character counts for text fields
+name: Textfield Counter
+description: Creates field formatters with character counts for text fields and text areas.
 core: 8.x
 type: module
 
