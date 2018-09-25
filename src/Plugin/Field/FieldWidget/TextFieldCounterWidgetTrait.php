@@ -4,6 +4,8 @@ namespace Drupal\textfield_counter\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
@@ -16,21 +18,34 @@ trait TextFieldCounterWidgetTrait {
 
   /**
    * Adds a form element to set the maximum number of characters allowed.
+   *
+   * @param array $form
+   *   The form render array to which the element should be added.
+   * @param int $defaultValue
+   *   The default value for the form element.
    */
-  public function addMaxlengthSettingsFormElement(&$form, $maxlength) {
+  public function addMaxlengthSettingsFormElement(array &$form, $defaultValue) {
     $form['maxlength'] = [
       '#type' => 'number',
       '#title' => $this->t('Maximum number of characters'),
       '#min' => 0,
-      '#default_value' => $maxlength,
-      '#description' => $this->t('Setting this value to zero will disable the counter'),
+      '#default_value' => $defaultValue,
+      '#description' => $this->t('Setting this value to zero will disable the counter on textareas.'),
     ];
   }
 
   /**
    * Adds a form element to set the position of the text counter.
+   *
+   * @param array $form
+   *   The form render array to which the element should be added.
+   * @param string $position
+   *   Where the counter should be located in relation to the textfield. Allowed
+   *   values are:
+   *   - above
+   *   - below.
    */
-  public function addCounterPositionSettingsFormElement(&$form, $position) {
+  public function addCounterPositionSettingsFormElement(array &$form, $position) {
     $form['counter_position'] = [
       '#type' => 'select',
       '#title' => $this->t('Counter position'),
@@ -44,6 +59,12 @@ trait TextFieldCounterWidgetTrait {
 
   /**
    * Returns the summary of the maximum number of allowed characters.
+   *
+   * @param int $maxlength
+   *   The maximum length allowed for the field.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The max length summary, translated.
    */
   public function addMaxlengthSummary($maxlength) {
     return $this->t('Maximum number of characters: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
@@ -51,15 +72,40 @@ trait TextFieldCounterWidgetTrait {
 
   /**
    * Returns the summary of the position of the textfield counter.
+   *
+   * @param string $position
+   *   Where the counter should be located in relation to the textfield. Allowed
+   *   values are:
+   *   - above
+   *   - below.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The position summary, translated.
    */
   public function addPositionSummary($position) {
     return $this->t('Counter position: @position', ['@position' => $this->translateValue($position)]);
   }
 
   /**
-   * Sets HTML attributes and attaches libraries and settings to the element.
+   * Sets up the form element with the textfield counter.
+   *
+   * @param array $element
+   *   The render array for the element to which files are being attached.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to which the field is attached.
+   * @param |Drupal\Core\Field\FieldDefinitionInterface $fieldDefinition
+   *   The field definition.
+   * @param int $delta
+   *   The delta (index) of the current item.
+   * @param int $maxlength
+   *   The maximum length of the textfield.
+   * @param string $position
+   *   Where the counter should be located in relation to the textfield. Allowed
+   *   values are:
+   *   - above
+   *   - below.
    */
-  public function addFieldFormElement(&$element, $entity, $fieldDefinition, $delta, $maxlength, $position) {
+  public function addFieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta, $maxlength, $position) {
     $keys = [$entity->getEntityTypeId()];
     $keys[] = $entity->id() ? $entity->id() : 0;
     if (method_exists($fieldDefinition, 'id')) {
@@ -84,6 +130,14 @@ trait TextFieldCounterWidgetTrait {
 
   /**
    * Validates the field for the maximum number of characters.
+   *
+   * @param array $element
+   *   The render array for the element to which fiels are being attached.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The Drupal form state.
+   * @param int $maxlength
+   *   The maximum allowed text length against which the field should be
+   *   validated.
    */
   public static function validateFieldFormElement(array $element, FormStateInterface $form_state, $maxlength) {
     $input_exists = FALSE;
