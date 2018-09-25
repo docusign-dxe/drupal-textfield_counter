@@ -40,7 +40,7 @@ class TextfieldWithCounterWidget extends TextfieldWidget {
     $form = parent::settingsForm($form, $form_state);
 
     $this->addMaxlengthSettingsFormElement($form, $this->getSetting('maxlength'), TRUE);
-    $this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'));
+    $this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'), TRUE);
 
     return $form;
   }
@@ -53,7 +53,7 @@ class TextfieldWithCounterWidget extends TextfieldWidget {
 
     $maxlength = $this->getSetting('maxlength');
     $summary['maxlength'] = $this->addMaxlengthSummary($maxlength);
-    if ($maxlength) {
+    if ($maxlength || $this->getSetting('use_field_maxlength')) {
       $summary['counter_position'] = $this->addPositionSummary($this->getSetting('counter_position'));
     }
 

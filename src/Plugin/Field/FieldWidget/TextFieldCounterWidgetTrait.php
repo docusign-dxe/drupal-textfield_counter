@@ -68,8 +68,12 @@ trait TextFieldCounterWidgetTrait {
    *   values are:
    *   - above
    *   - below.
+   * @param bool $storageSettingMaxlengthField
+   *   Whether or not the field has storage settings that include a maximum
+   *   length. Such fields allow for using the storage settings rather than the
+   *   wiget setting.
    */
-  public function addCounterPositionSettingsFormElement(array &$form, $position) {
+  public function addCounterPositionSettingsFormElement(array &$form, $position, $storageSettingMaxlengthField = FALSE) {
     $form['counter_position'] = [
       '#type' => 'select',
       '#title' => $this->t('Counter position'),
@@ -78,16 +82,23 @@ trait TextFieldCounterWidgetTrait {
         'after' => $this->translateValue('after'),
       ],
       '#default_value' => $position,
-      '#states' => [
-        'invisible' => [
-          [
-            [':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][use_field_maxlength]"]' => ['checked' => TRUE]],
-            'or',
-            [':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => '0']],
-          ],
-        ],
-      ],
     ];
+
+    if ($storageSettingMaxlengthField) {
+      $form['counter_position']['#states'] = [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][use_field_maxlength]"]' => ['checked' => FALSE],
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0],
+        ],
+      ];
+    }
+    else {
+      $form['counter_position']['#states'] = [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => '0'],
+        ],
+      ];
+    }
   }
 
   /**
