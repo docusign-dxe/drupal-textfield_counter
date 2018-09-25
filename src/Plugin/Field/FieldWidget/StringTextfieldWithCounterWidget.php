@@ -26,6 +26,7 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
    */
   public static function defaultSettings() {
     return [
+      'use_field_maxlength' => 0,
       'maxlength' => 0,
       'counter_position' => 'after',
     ] + parent::defaultSettings();
@@ -38,7 +39,7 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
 
     $form = parent::settingsForm($form, $form_state);
 
-    $this->addMaxlengthSettingsFormElement($form, $this->getSetting('maxlength'));
+    $this->addMaxlengthSettingsFormElement($form, $this->getSetting('maxlength'), TRUE);
     $this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'));
 
     return $form;
@@ -50,8 +51,11 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
   public function settingsSummary() {
     $summary = parent::settingsSummary();
 
-    $summary['maxlength'] = $this->addMaxlengthSummary($this->getSetting('maxlength'));
-    $summary['counter_position'] = $this->addPositionSummary($this->getSetting('counter_position'));
+    $maxlength = $this->getSetting('maxlength');
+    $summary['maxlength'] = $this->addMaxlengthSummary($maxlength);
+    if ($maxlength) {
+      $summary['counter_position'] = $this->addPositionSummary($this->getSetting('counter_position'));
+    }
 
     return $summary;
   }
@@ -63,17 +67,17 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
 
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
 
-    $entity = $items->getEntity();
-    $field_defintion = $items->getFieldDefinition();
-    $maxlength = $this->getFieldSetting('max_length');
-    if ($this->getSetting('maxlength')) {
-      $maxlength = min($maxlength, $this->getSetting('maxlength'));
+    $use_field_maxlength = $this->getSetting('use_field_maxlength');
+    $maxlength = $use_field_maxlength ? $this->getFieldSetting('max_length') : $this->getSetting('maxlength');
+    if ($maxlength) {
+      $entity = $items->getEntity();
+      $field_defintion = $items->getFieldDefinition();
+      $position = $this->getSetting('counter_position');
+      $this->fieldFormElement($element['value'], $entity, $field_defintion, $delta, $maxlength, $position);
+      $element['value']['#textfield-maxlength'] = $maxlength;
+      $classes = class_uses($this);
+      $element['value']['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];
     }
-    $position = $this->getSetting('counter_position');
-    $this->addFieldFormElement($element['value'], $entity, $field_defintion, $delta, $maxlength, $position);
-    $element['value']['#textfield-maxlength'] = $maxlength;
-    $classes = class_uses($this);
-    $element['value']['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];
 
     return $element;
   }

@@ -11,7 +11,7 @@ use Drupal\Core\Field\Plugin\Field\FieldWidget\StringTextareaWidget;
  *
  * @FieldWidget(
  *   id = "string_textarea_with_counter",
- *   label = @Translation("Text area (multiple rows) with counter"),
+ *   label = @Translation("Textarea (multiple rows) with counter"),
  *   field_types = {
  *     "string_long"
  *   }
@@ -69,7 +69,7 @@ class StringTextareaWithCounterWidget extends StringTextareaWidget {
       $field_defintion = $items->getFieldDefinition();
       $maxlength = $this->getSetting('maxlength');
       $position = $this->getSetting('counter_position');
-      $this->addFieldFormElement($element['value'], $entity, $field_defintion, $delta, $maxlength, $position);
+      $this->fieldFormElement($element['value'], $entity, $field_defintion, $delta, $maxlength, $position);
       $element['value']['#textfield-maxlength'] = $maxlength;
       $classes = class_uses($this);
       $element['value']['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];

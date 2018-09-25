@@ -7,14 +7,11 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Textfield counter trait. Adds textfield counting functionality.
  */
 trait TextFieldCounterWidgetTrait {
-
-  use StringTranslationTrait;
 
   /**
    * Adds a form element to set the maximum number of characters allowed.
@@ -23,8 +20,31 @@ trait TextFieldCounterWidgetTrait {
    *   The form render array to which the element should be added.
    * @param int $defaultValue
    *   The default value for the form element.
+   * @param bool $includeDefaultSettings
+   *   A boolean indicating whether or not to allow an override of the max
+   *   length based on the default setting for the field. This should be set to
+   *   true for textfields (textareas will not have a default setting for the
+   *   field).
    */
-  public function addMaxlengthSettingsFormElement(array &$form, $defaultValue) {
+  public function addMaxlengthSettingsFormElement(array &$form, $defaultValue, $includeDefaultSettings = FALSE) {
+
+    if ($includeDefaultSettings) {
+      $form['use_field_maxlength'] = [
+        '#title' => t(
+          'Use field default (@character_count)',
+          [
+            '@character_count' => $this->formatPlural(
+              $this->getFieldSetting('max_length'),
+              '1 character',
+              '@count characters'
+            ),
+          ]
+        ),
+        '#type' => 'checkbox',
+        '#default_value' => $this->getSetting('use_field_maxlength'),
+      ];
+    }
+
     $form['maxlength'] = [
       '#type' => 'number',
       '#title' => $this->t('Maximum number of characters'),
@@ -32,6 +52,10 @@ trait TextFieldCounterWidgetTrait {
       '#default_value' => $defaultValue,
       '#description' => $this->t('Setting this value to zero will disable the counter on textareas.'),
     ];
+
+    if ($includeDefaultSettings) {
+      $form['maxlength']['#states']['visible'][':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][use_field_maxlength]"]'] = ['checked' => FALSE];
+    }
   }
 
   /**
@@ -54,6 +78,15 @@ trait TextFieldCounterWidgetTrait {
         'after' => $this->translateValue('after'),
       ],
       '#default_value' => $position,
+      '#states' => [
+        'invisible' => [
+          [
+            [':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][use_field_maxlength]"]' => ['checked' => TRUE]],
+            'or',
+            [':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => '0']],
+          ],
+        ],
+      ],
     ];
   }
 
@@ -67,6 +100,10 @@ trait TextFieldCounterWidgetTrait {
    *   The max length summary, translated.
    */
   public function addMaxlengthSummary($maxlength) {
+    if ($this->getSetting('use_field_maxlength')) {
+      return $this->t('Maximum number: @count (field default)', ['@count' => $this->getFieldSetting('max_length')]);
+    }
+
     return $this->t('Maximum number of characters: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
   }
 
@@ -105,7 +142,7 @@ trait TextFieldCounterWidgetTrait {
    *   - above
    *   - below.
    */
-  public function addFieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta, $maxlength, $position) {
+  public function fieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta, $maxlength, $position) {
     $keys = [$entity->getEntityTypeId()];
     $keys[] = $entity->id() ? $entity->id() : 0;
     if (method_exists($fieldDefinition, 'id')) {

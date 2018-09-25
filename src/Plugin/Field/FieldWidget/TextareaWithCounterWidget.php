@@ -11,7 +11,7 @@ use Drupal\text\Plugin\Field\FieldWidget\TextareaWidget;
  *
  * @FieldWidget(
  *   id = "text_textarea_with_counter",
- *   label = @Translation("Text area (multiple rows) with counter"),
+ *   label = @Translation("Textarea (multiple rows) with counter"),
  *   field_types = {
  *     "text_long"
  *   }
@@ -65,12 +65,11 @@ class TextareaWithCounterWidget extends TextareaWidget {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
 
-    if ($this->getSetting('maxlength')) {
+    if ($maxlength = $this->getSetting('maxlength')) {
       $entity = $items->getEntity();
       $field_defintion = $items->getFieldDefinition();
-      $maxlength = $this->getSetting('maxlength');
       $position = $this->getSetting('counter_position');
-      $this->addFieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
+      $this->fieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
       $element['#textfield-maxlength'] = $maxlength;
       $classes = class_uses($this);
       $element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];

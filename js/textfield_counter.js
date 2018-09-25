@@ -41,25 +41,26 @@
           var counter, maxlength, remaining;
 
           maxlength = fieldSettings.maxlength;
-          remaining = maxlength - $(this).val().length;
-          counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t("Remaining: <span class='remaining_count'>@count</span>", {"@count":remaining}));
-
-          if (fieldSettings.counterPosition === "before") {
-            counter.insertBefore($(this));
-          }
-          else {
-            counter.insertAfter($(this));
-          }
-
-          checkClasses($(this).parent(), remaining);
-
-          $(this).keyup(function () {
+          if (maxlength) {
             remaining = maxlength - $(this).val().length;
+            counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t("Remaining: <span class='remaining_count'>@count</span>", {"@count":remaining}));
 
-            counter.children(".remaining_count:first").text(remaining);
+            if (fieldSettings.counterPosition === "before") {
+              counter.insertBefore($(this));
+            }
+            else {
+              counter.insertAfter($(this));
+            }
 
             checkClasses($(this).parent(), remaining);
-          });
+
+            $(this).keyup(function () {
+              var currentLength = $(this).val().length;
+              remaining = maxlength - currentLength;
+              counter.children(".remaining_count:first").text(remaining);
+              checkClasses($(this).parent(), remaining);
+            });
+          }
         });
       });
     });

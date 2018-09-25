@@ -11,7 +11,7 @@ use Drupal\text\Plugin\Field\FieldWidget\TextareaWithSummaryWidget;
  *
  * @FieldWidget(
  *   id = "text_textarea_with_summary_and_counter",
- *   label = @Translation("Text area with a summary and counter"),
+ *   label = @Translation("Textarea with a summary and counter"),
  *   field_types = {
  *     "text_with_summary"
  *   }
@@ -72,7 +72,7 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
       $field_defintion = $items->getFieldDefinition();
       $maxlength = $this->getSetting('maxlength');
       $position = $this->getSetting('counter_position');
-      $this->addFieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
+      $this->fieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
       $element['#textfield-maxlength'] = $maxlength;
       $classes = class_uses($this);
       $element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];

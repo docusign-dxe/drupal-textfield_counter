@@ -21,7 +21,10 @@ field.widget.settings.text_textarea_with_summary_and_counter:
   mapping:
     rows:
       type: integer
-      label: 'The number of rows in size that the textarea should be'
+      label: 'The height of the textarea in horizontal rows'
+    summary_rows:
+      type: integer
+      label: 'The height of the summary in horizontal rows'
     placeholder:
       type: string
       label: 'The form element placeholder text'
@@ -59,6 +62,9 @@ field.widget.settings.string_textfield_with_counter:
     placeholder:
       type: string
       label: 'The form element placeholder text'
+    use_field_maxlength:
+      type: boolean
+      label: 'Indicates whether the field settings should be used for the maximum length'
     maxlength:
       type: integer
       label: 'The maximum number of characters allowed in the textarea'
@@ -76,6 +82,9 @@ field.widget.settings.text_textfield_with_counter:
     placeholder:
       type: string
       label: 'The form element placeholder text'
+    use_field_maxlength:
+      type: boolean
+      label: 'Indicates whether the field settings should be used for the maximum length'
     maxlength:
       type: integer
       label: 'The maximum number of characters allowed in the textarea'
