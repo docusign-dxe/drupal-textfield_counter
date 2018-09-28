@@ -66,16 +66,21 @@
     });
   }
 
-  function formSubmitListener(context) {
+  function formSubmitListener(context, settings) {
     $(context).find("form").once("textfield-counter-form-submit-listener").each(function () {
       $(this).submit(function (e) {
-        var errorElement = $(this).find(".textcount_over:first");
-        if (errorElement.length) {
-          e.preventDefault();
-          $("html, body").animate({
-            scrollTop: $(errorElement).offset().top
-          }, 300);
-        }
+        var errorElements = $(this).find(".textcount_over");
+        errorElements.each(function (elementIndex) {
+          $.each(settings.textfieldCounter, function (settingsIndex, fieldSettings) {
+            var wrapperElement = $(errorElements[elementIndex]);
+            if (fieldSettings.preventSubmit && settingsIndex === wrapperElement.find(".textfield-counter-element:first").data("field-definition-id")) {
+              e.preventDefault();
+              $("html, body").animate({
+                scrollTop:wrapperElement.offset().top
+              }, 300);
+            }
+          });
+        });
       });
     });
   }
@@ -83,7 +88,7 @@
   Drupal.behaviors.textfieldCounterTextarea = {
     attach:function (context, settings) {
       textWatcher(settings);
-      formSubmitListener(context);
+      formSubmitListener(context, settings);
     }
   };
 

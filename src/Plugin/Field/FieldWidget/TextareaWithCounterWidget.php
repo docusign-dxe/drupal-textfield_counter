@@ -28,6 +28,7 @@ class TextareaWithCounterWidget extends TextareaWidget {
     return [
       'maxlength' => 0,
       'counter_position' => 'after',
+      'js_prevent_submit' => TRUE,
     ] + parent::defaultSettings();
   }
 
@@ -38,8 +39,9 @@ class TextareaWithCounterWidget extends TextareaWidget {
 
     $form = parent::settingsForm($form, $form_state);
 
-    $this->addMaxlengthSettingsFormElement($form, $this->getSetting('maxlength'));
-    $this->addCounterPositionSettingsFormElement($form, $this->getSetting('counter_position'));
+    $this->addMaxlengthSettingsFormElement($form);
+    $this->addCounterPositionSettingsFormElement($form);
+    $this->addJsPreventSubmitSettingsFormElement($form);
 
     return $form;
   }
@@ -50,10 +52,10 @@ class TextareaWithCounterWidget extends TextareaWidget {
   public function settingsSummary() {
     $summary = parent::settingsSummary();
 
-    $maxlength = $this->getSetting('maxlength');
-    $summary[] = $this->addMaxlengthSummary($maxlength);
-    if ($maxlength) {
-      $summary[] = $this->addPositionSummary($this->getSetting('counter_position'));
+    $summary[] = $this->addMaxlengthSummary();
+    if ($this->getSetting('maxlength')) {
+      $summary[] = $this->addPositionSummary();
+      $summary['js_prevent_submit'] = $this->addJsSubmitPreventSummary();
     }
 
     return $summary;
@@ -68,8 +70,10 @@ class TextareaWithCounterWidget extends TextareaWidget {
     if ($maxlength = $this->getSetting('maxlength')) {
       $entity = $items->getEntity();
       $field_defintion = $items->getFieldDefinition();
-      $position = $this->getSetting('counter_position');
-      $this->fieldFormElement($element, $entity, $field_defintion, $delta, $maxlength, $position);
+      $this->fieldFormElement($element, $entity, $field_defintion, $delta);
+      if (isset($element['value'])) {
+        $element['value']['#textfield-maxlength'] = $maxlength;
+      }
       $element['#textfield-maxlength'] = $maxlength;
       $classes = class_uses($this);
       if (count($classes)) {

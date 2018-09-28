@@ -18,20 +18,17 @@ trait TextFieldCounterWidgetTrait {
    *
    * @param array $form
    *   The form render array to which the element should be added.
-   * @param int $defaultValue
-   *   The default value for the form element.
    * @param bool $includeDefaultSettings
    *   A boolean indicating whether or not to allow an override of the max
    *   length based on the default setting for the field. This should be set to
    *   true for textfields (textareas will not have a default setting for the
    *   field).
    */
-  public function addMaxlengthSettingsFormElement(array &$form, $defaultValue, $includeDefaultSettings = FALSE) {
-
+  public function addMaxlengthSettingsFormElement(array &$form, $includeDefaultSettings = FALSE) {
     if ($includeDefaultSettings) {
       $form['use_field_maxlength'] = [
         '#title' => t(
-          'Use field default (@character_count)',
+          'Set maximum number of characters to field default (@character_count characters)',
           [
             '@character_count' => $this->formatPlural(
               $this->getFieldSetting('max_length'),
@@ -49,7 +46,7 @@ trait TextFieldCounterWidgetTrait {
       '#type' => 'number',
       '#title' => $this->t('Maximum number of characters'),
       '#min' => 0,
-      '#default_value' => $defaultValue,
+      '#default_value' => $this->getSetting('maxlength'),
       '#description' => $this->t('Setting this value to zero will disable the counter on textareas.'),
     ];
 
@@ -63,17 +60,12 @@ trait TextFieldCounterWidgetTrait {
    *
    * @param array $form
    *   The form render array to which the element should be added.
-   * @param string $position
-   *   Where the counter should be located in relation to the textfield. Allowed
-   *   values are:
-   *   - above
-   *   - below.
    * @param bool $storageSettingMaxlengthField
    *   Whether or not the field has storage settings that include a maximum
    *   length. Such fields allow for using the storage settings rather than the
    *   wiget setting.
    */
-  public function addCounterPositionSettingsFormElement(array &$form, $position, $storageSettingMaxlengthField = FALSE) {
+  public function addCounterPositionSettingsFormElement(array &$form, $storageSettingMaxlengthField = FALSE) {
     $form['counter_position'] = [
       '#type' => 'select',
       '#title' => $this->t('Counter position'),
@@ -81,7 +73,7 @@ trait TextFieldCounterWidgetTrait {
         'before' => $this->translateValue('before'),
         'after' => $this->translateValue('after'),
       ],
-      '#default_value' => $position,
+      '#default_value' => $this->getSetting('counter_position'),
     ];
 
     if ($storageSettingMaxlengthField) {
@@ -95,7 +87,43 @@ trait TextFieldCounterWidgetTrait {
     else {
       $form['counter_position']['#states'] = [
         'invisible' => [
-          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => '0'],
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0],
+        ],
+      ];
+    }
+  }
+
+  /**
+   * Adds a form element to toggle JS prevention of form submission on error.
+   *
+   * @param array $form
+   *   The form render array to which the element should be added.
+   * @param bool $storageSettingMaxlengthField
+   *   Whether or not the field has storage settings that include a maximum
+   *   length. Such fields allow for using the storage settings rather than the
+   *   wiget setting.
+   */
+  public function addJsPreventSubmitSettingsFormElement(array &$form, $storageSettingMaxlengthField = FALSE) {
+    $form['js_prevent_submit'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Prevent form submission when character limit exceeded'),
+      '#description' => $this->t('Prevent form submission using JavaScript if the user has gone over the allowed character count.'),
+      '#default_value' => $this->getSetting('js_prevent_submit'),
+    ];
+
+    if ($storageSettingMaxlengthField) {
+      $form['js_prevent_submit']['#states'] = [
+        'invisible' => [
+          [':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][use_field_maxlength]"]' => ['checked' => TRUE]],
+          'or',
+          [':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0]],
+        ],
+      ];
+    }
+    else {
+      $form['js_prevent_submit']['#states'] = [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0],
         ],
       ];
     }
@@ -104,16 +132,15 @@ trait TextFieldCounterWidgetTrait {
   /**
    * Returns the summary of the maximum number of allowed characters.
    *
-   * @param int $maxlength
-   *   The maximum length allowed for the field.
-   *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The max length summary, translated.
    */
-  public function addMaxlengthSummary($maxlength) {
+  public function addMaxlengthSummary() {
     if ($this->getSetting('use_field_maxlength')) {
-      return $this->t('Maximum number: @count (field default)', ['@count' => $this->getFieldSetting('max_length')]);
+      return $this->t('Maximum number of characters: @count (field default)', ['@count' => $this->getFieldSetting('max_length')]);
     }
+
+    $maxlength = $this->getSetting('maxlength');
 
     return $this->t('Maximum number of characters: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
   }
@@ -121,17 +148,21 @@ trait TextFieldCounterWidgetTrait {
   /**
    * Returns the summary of the position of the textfield counter.
    *
-   * @param string $position
-   *   Where the counter should be located in relation to the textfield. Allowed
-   *   values are:
-   *   - above
-   *   - below.
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The position summary, translated.
+   */
+  public function addPositionSummary() {
+    return $this->t('Counter position: @position', ['@position' => $this->translateValue($this->getSetting('counter_position'))]);
+  }
+
+  /**
+   * Returns the summary of the js_prevent_submit setting.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The position summary, translated.
    */
-  public function addPositionSummary($position) {
-    return $this->t('Counter position: @position', ['@position' => $this->translateValue($position)]);
+  public function addJsSubmitPreventSummary() {
+    return $this->t('Prevent form submission when user goes over character count: @prevent', ['@prevent' => ($this->getSetting('js_prevent_submit') ? $this->t('Yes') : $this->t('No'))]);
   }
 
   /**
@@ -145,15 +176,11 @@ trait TextFieldCounterWidgetTrait {
    *   The field definition.
    * @param int $delta
    *   The delta (index) of the current item.
-   * @param int $maxlength
-   *   The maximum length of the textfield.
-   * @param string $position
-   *   Where the counter should be located in relation to the textfield. Allowed
-   *   values are:
-   *   - above
-   *   - below.
    */
-  public function fieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta, $maxlength, $position) {
+  public function fieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta) {
+    $maxlength = $this->getSetting('use_field_maxlength') ? $this->getFieldSetting('max_length') : $this->getSetting('maxlength');
+    $position = $this->getSetting('counter_position');
+
     $keys = [$entity->getEntityTypeId()];
     $keys[] = $entity->id() ? $entity->id() : 0;
     if (method_exists($fieldDefinition, 'id')) {
@@ -169,11 +196,16 @@ trait TextFieldCounterWidgetTrait {
 
     $element['#attributes']['class'][] = $key;
     $element['#attributes']['class'][] = 'textfield-counter-element';
+    $element['#attributes']['data-field-definition-id'] = $field_definition_id;
 
     $element['#attached']['library'][] = 'textfield_counter/counter';
     $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['key'][$delta] = $key;
     $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['maxlength'] = (int) $maxlength;
     $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['counterPosition'] = $position;
+
+    if ($this->getSetting('js_prevent_submit')) {
+      $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['preventSubmit'] = TRUE;
+    }
   }
 
   /**
