@@ -130,39 +130,92 @@ trait TextFieldCounterWidgetTrait {
   }
 
   /**
-   * Returns the summary of the maximum number of allowed characters.
+   * Adds a form element to determine whether HTML characters should be counted.
    *
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
-   *   The max length summary, translated.
+   * @param array $form
+   *   The form render array to which the element should be added.
+   * @param bool $storageSettingMaxlengthField
+   *   Whether or not the field has storage settings that include a maximum
+   *   length. Such fields allow for using the storage settings rather than the
+   *   wiget setting.
    */
-  public function addMaxlengthSummary() {
+  public function addCountHtmlSettingsFormElement(array &$form, $storageSettingMaxlengthField = FALSE) {
+    $form['count_html_characters'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Include HTML characters in the character count'),
+      '#description' => $this->t('When this box is checked, HTML characters are included in the character count. For example, when this box is checked, the string <em>&lt;p&gt;Hi&lt;/p&gt; would be nine characters long. When this box is not checked, the character count would be two characters (for hi).'),
+      '#default_value' => $this->getSetting('count_html_characters'),
+    ];
+
+    if ($storageSettingMaxlengthField) {
+      $form['count_html_characters']['#states'] = [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][use_field_maxlength]"]' => ['checked' => FALSE],
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0],
+        ],
+      ];
+    }
+    else {
+      $form['count_html_characters']['#states'] = [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0],
+        ],
+      ];
+    }
+  }
+
+  /**
+   * Adds the summary of the maximum number of allowed characters.
+   *
+   * @param array $summary
+   *   The array of summaries to which the summary should be added.
+   */
+  public function addMaxlengthSummary(array &$summary) {
     if ($this->getSetting('use_field_maxlength')) {
-      return $this->t('Maximum number of characters: @count (field default)', ['@count' => $this->getFieldSetting('max_length')]);
+      $text = $this->t('Maximum number of characters: @count (field default)', ['@count' => $this->getFieldSetting('max_length')]);
+    }
+    else {
+      $maxlength = $this->getSetting('maxlength');
+      $text = $this->t('Maximum number of characters: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
     }
 
-    $maxlength = $this->getSetting('maxlength');
-
-    return $this->t('Maximum number of characters: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
+    $summary['maxlength'] = $text;
   }
 
   /**
-   * Returns the summary of the position of the textfield counter.
+   * Adds the summary of the position of the textfield counter.
    *
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
-   *   The position summary, translated.
+   * @param array $summary
+   *   The array of summaries to which the summary should be added.
    */
-  public function addPositionSummary() {
-    return $this->t('Counter position: @position', ['@position' => $this->translateValue($this->getSetting('counter_position'))]);
+  public function addPositionSummary(array &$summary) {
+    if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
+      $summary['counter_position'] = $this->t('Counter position: @position', ['@position' => $this->translateValue($this->getSetting('counter_position'))]);
+    }
   }
 
   /**
-   * Returns the summary of the js_prevent_submit setting.
+   * Adds the summary of the js_prevent_submit setting.
    *
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
-   *   The position summary, translated.
+   * @param array $summary
+   *   The array of summaries to which the summary should be added.
    */
-  public function addJsSubmitPreventSummary() {
-    return $this->t('Prevent form submission when user goes over character count: @prevent', ['@prevent' => ($this->getSetting('js_prevent_submit') ? $this->t('Yes') : $this->t('No'))]);
+  public function addJsSubmitPreventSummary(array &$summary) {
+    if ($this->getSetting('maxlength') && !$this->getSetting('use_field_maxlength')) {
+      $summary['js_prevent_submit'] = $this->t('Prevent form submission when user goes over character count: @prevent', ['@prevent' => ($this->getSetting('js_prevent_submit') ? $this->t('Yes') : $this->t('No'))]);
+    }
+  }
+
+  /**
+   * Adds the summary of the count_html_characters setting.
+   *
+   * @param array $summary
+   *   The array of summaries to which the summary should be added.
+   */
+  public function addCountHtmlPreventSummary(array &$summary) {
+    if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
+      $summary['count_html_characters'] = $this->t('Include HTML characters in the character count: @count_html_characters', ['@count_html_characters' => ($this->getSetting('count_html_characters') ? $this->t('Yes') : $this->t('No'))]);
+    }
   }
 
   /**
@@ -206,6 +259,8 @@ trait TextFieldCounterWidgetTrait {
     if ($this->getSetting('js_prevent_submit')) {
       $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['preventSubmit'] = TRUE;
     }
+
+    $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['countHTMLCharacters'] = $this->getSetting('count_html_characters');
   }
 
   /**
@@ -225,7 +280,13 @@ trait TextFieldCounterWidgetTrait {
     $value = is_array($value) ? $value['value'] : $value;
     $parts = explode(PHP_EOL, $value);
     $newline_count = count($parts) - 1;
-    $value_length = Unicode::strlen($value) - $newline_count;
+    $count_html_characters = $element['#textfield-count-html'];
+    if ($count_html_characters) {
+      $value_length = Unicode::strlen($value) - $newline_count;
+    }
+    else {
+      $value_length = Unicode::strlen(strip_tags($value)) - $newline_count;
+    }
     if ($value_length > $element['#textfield-maxlength']) {
       $form_state->setError($element, t(
         '@name cannot be longer than %max characters but is currently %length characters long.',

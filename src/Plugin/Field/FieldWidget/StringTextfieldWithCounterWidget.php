@@ -30,6 +30,7 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
       'maxlength' => 0,
       'counter_position' => 'after',
       'js_prevent_submit' => TRUE,
+      'count_html_characters' => TRUE,
     ] + parent::defaultSettings();
   }
 
@@ -43,6 +44,7 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
     $this->addMaxlengthSettingsFormElement($form, TRUE);
     $this->addCounterPositionSettingsFormElement($form, TRUE);
     $this->addJsPreventSubmitSettingsFormElement($form, TRUE);
+    $this->addCountHtmlSettingsFormElement($form, TRUE);
 
     return $form;
   }
@@ -53,14 +55,10 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
   public function settingsSummary() {
     $summary = parent::settingsSummary();
 
-    $summary['maxlength'] = $this->addMaxlengthSummary();
-    if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
-      $summary['counter_position'] = $this->addPositionSummary();
-    }
-
-    if ($this->getSetting('maxlength') && !$this->getSetting('use_field_maxlength')) {
-      $summary['js_prevent_submit'] = $this->addJsSubmitPreventSummary();
-    }
+    $this->addMaxlengthSummary($summary);
+    $this->addPositionSummary($summary);
+    $this->addJsSubmitPreventSummary($summary);
+    $this->addCountHtmlPreventSummary($summary);
 
     return $summary;
   }
@@ -77,10 +75,13 @@ class StringTextfieldWithCounterWidget extends StringTextfieldWidget {
       $entity = $items->getEntity();
       $field_definition = $items->getFieldDefinition();
       $this->fieldFormElement($element['value'], $entity, $field_definition, $delta);
+      $count_html_characters = $this->getSetting('count_html_characters');
       if (isset($element['value'])) {
         $element['value']['#textfield-maxlength'] = $maxlength;
+        $element['value']['#textfield-count-html'] = $count_html_characters;
       }
       $element['#textfield-maxlength'] = $maxlength;
+      $element['#textfield-count-html'] = $count_html_characters;
       $classes = class_uses($this);
       if (count($classes)) {
         $element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];

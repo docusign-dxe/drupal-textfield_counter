@@ -29,6 +29,7 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
       'maxlength' => 0,
       'counter_position' => 'after',
       'js_prevent_submit' => TRUE,
+      'count_html_characters' => TRUE,
     ] + parent::defaultSettings();
   }
 
@@ -42,6 +43,7 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
     $this->addMaxlengthSettingsFormElement($form);
     $this->addCounterPositionSettingsFormElement($form);
     $this->addJsPreventSubmitSettingsFormElement($form);
+    $this->addCountHtmlSettingsFormElement($form);
 
     return $form;
   }
@@ -53,11 +55,10 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
 
     $summary = parent::settingsSummary();
 
-    $summary['maxlength'] = $this->addMaxlengthSummary();
-    if ($this->getSetting('maxlength')) {
-      $summary['counter_position'] = $this->addPositionSummary();
-      $summary['js_prevent_submit'] = $this->addJsSubmitPreventSummary();
-    }
+    $this->addMaxlengthSummary($summary);
+    $this->addPositionSummary($summary);
+    $this->addJsSubmitPreventSummary($summary);
+    $this->addCountHtmlPreventSummary($summary);
 
     return $summary;
   }
@@ -73,10 +74,13 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
       $entity = $items->getEntity();
       $field_defintion = $items->getFieldDefinition();
       $this->fieldFormElement($element, $entity, $field_defintion, $delta);
+      $count_html_characters = $this->getSetting('count_html_characters');
       if (isset($element['value'])) {
         $element['value']['#textfield-maxlength'] = $maxlength;
+        $element['value']['#textfield-count-html'] = $count_html_characters;
       }
       $element['#textfield-maxlength'] = $maxlength;
+      $element['#textfield-count-html'] = $count_html_characters;
       $classes = class_uses($this);
       if (count($classes)) {
         $element['#element_validate'][] = [array_pop($classes), 'validateFieldFormElement'];

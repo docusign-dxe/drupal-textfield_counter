@@ -38,11 +38,18 @@
 
       $.each(fieldSettings.key, function (index) {
         $("." + fieldSettings.key[index]).once("textfield-counter-text-watcher").each(function () {
-          var counter, maxlength, remaining;
+          var counter, maxlength, currentLength, remaining, countHTML;
 
           maxlength = fieldSettings.maxlength;
           if (maxlength) {
-            remaining = maxlength - $(this).val().length;
+            countHTML = fieldSettings.countHTMLCharacters;
+            if (countHTML) {
+              currentLength = $(this).val().length;
+            }
+            else {
+              currentLength = $("<div/>").html($(this).val()).text().length;
+            }
+            remaining = maxlength - currentLength;
             counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t("Remaining: <span class='remaining_count'>@count</span>", {"@count":remaining}));
 
             if (fieldSettings.counterPosition === "before") {
@@ -55,7 +62,13 @@
             checkClasses($(this).parent(), remaining);
 
             $(this).keyup(function () {
-              var currentLength = $(this).val().length;
+              if (countHTML) {
+                currentLength = $(this).val().length;
+              }
+              else {
+                currentLength = $("<div/>").html($(this).val()).text().length;
+              }
+
               remaining = maxlength - currentLength;
               counter.children(".remaining_count:first").text(remaining);
               checkClasses($(this).parent(), remaining);
