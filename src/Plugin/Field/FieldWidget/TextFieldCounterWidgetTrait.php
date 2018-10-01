@@ -240,8 +240,9 @@ trait TextFieldCounterWidgetTrait {
       $field_definition_id = str_replace('.', '--', $fieldDefinition->id());
     }
     else {
-      $field_definition_id = "{$entity->getEntityTypeId()}--{$entity->getType()}--{$fieldDefinition->getName()}";
+      $field_definition_id = "{$entity->getEntityTypeId()}--{$entity->bundle()}--{$fieldDefinition->getName()}";
     }
+
     $keys[] = $field_definition_id;
     $keys[] = $delta;
 
