@@ -143,7 +143,7 @@ trait TextFieldCounterWidgetTrait {
     $form['count_html_characters'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Include HTML characters in the character count'),
-      '#description' => $this->t('When this box is checked, HTML characters are included in the character count. For example, when this box is checked, the string <em>&lt;p&gt;Hi&lt;/p&gt; would be nine characters long. When this box is not checked, the character count would be two characters (for hi).'),
+      '#description' => $this->t('When this box is checked, HTML characters are included in the character count. For example, when this box is checked, the string <em>&lt;p&gt;Hi&lt;/p&gt;</em> would be nine characters long. When this box is not checked, the character count would be two characters long (for hi). Note that if this textarea uses an editor like CKEditor, it is very likely that this box should be unchecked.'),
       '#default_value' => $this->getSetting('count_html_characters'),
     ];
 
