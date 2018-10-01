@@ -165,6 +165,51 @@ trait TextFieldCounterWidgetTrait {
   }
 
   /**
+   * Get the default value for the textcount_status_message widget setting.
+   *
+   * @return string
+   *   The default message for widget settings.
+   */
+  public static function getDefaultTextCountStatusMessage() {
+    return 'Maxlength: <span class="maxlength_count">@maxlength</span><br />Used: <span class="current_count">@current_length</span><br />Remaining: <span class="remaining_count">@remaining_count</span>';
+  }
+
+  /**
+   * Adds a form element to set the status message to be shown to users.
+   *
+   * @param array $form
+   *   The form render array to which the element should be added.
+   * @param bool $storageSettingMaxlengthField
+   *   Whether or not the field has storage settings that include a maximum
+   *   length. Such fields allow for using the storage settings rather than the
+   *   wiget setting.
+   */
+  public function addTextCountStatusMessageSettingsFormElement(array &$form, $storageSettingMaxlengthField = FALSE) {
+    $form['textcount_status_message'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Message shown to users'),
+      '#default_value' => $this->getSetting('textcount_status_message'),
+      '#description' => $this->t('Enter the message to show to users indicating the current status of the character count. The variables @maxlength, @current_length and @remaining_count can be used in this value. Ensure the values are wrapped in spans with their classes respectively set to <em>maxlength_count</em>, <em>current_count</em> and <em>remaining_count</em>.'),
+    ];
+
+    if ($storageSettingMaxlengthField) {
+      $form['textcount_status_message']['#states'] = [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][use_field_maxlength]"]' => ['checked' => FALSE],
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0],
+        ],
+      ];
+    }
+    else {
+      $form['textcount_status_message']['#states'] = [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][maxlength]"]' => ['value' => 0],
+        ],
+      ];
+    }
+  }
+
+  /**
    * Adds the summary of the maximum number of allowed characters.
    *
    * @param array $summary
@@ -212,9 +257,21 @@ trait TextFieldCounterWidgetTrait {
    * @param array $summary
    *   The array of summaries to which the summary should be added.
    */
-  public function addCountHtmlPreventSummary(array &$summary) {
+  public function addCountHtmlSummary(array &$summary) {
     if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
       $summary['count_html_characters'] = $this->t('Include HTML characters in the character count: @count_html_characters', ['@count_html_characters' => ($this->getSetting('count_html_characters') ? $this->t('Yes') : $this->t('No'))]);
+    }
+  }
+
+  /**
+   * Adds the summary of the count_html_characters setting.
+   *
+   * @param array $summary
+   *   The array of summaries to which the summary should be added.
+   */
+  public function addTextCountStatusMessageSummary(array &$summary) {
+    if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
+      $summary['textcount_status_message'] = $this->t('Status Message: @status_message', ['@status_message' => $this->getSetting('textcount_status_message')]);
     }
   }
 
@@ -256,6 +313,7 @@ trait TextFieldCounterWidgetTrait {
     $element['#attached']['drupalSettings']['textfieldCounter'][$key]['key'][$delta] = $key;
     $element['#attached']['drupalSettings']['textfieldCounter'][$key]['maxlength'] = (int) $maxlength;
     $element['#attached']['drupalSettings']['textfieldCounter'][$key]['counterPosition'] = $position;
+    $element['#attached']['drupalSettings']['textfieldCounter'][$key]['textCountStatusMessage'] = $this->getSetting('textcount_status_message');
 
     if ($this->getSetting('js_prevent_submit')) {
       $element['#attached']['drupalSettings']['textfieldCounter'][$key]['preventSubmit'] = TRUE;

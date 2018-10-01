@@ -31,6 +31,7 @@ class TextfieldWithCounterWidget extends TextfieldWidget {
       'counter_position' => 'after',
       'js_prevent_submit' => TRUE,
       'count_html_characters' => TRUE,
+      'textcount_status_message' => self::getDefaultTextCountStatusMessage(),
     ] + parent::defaultSettings();
   }
 
@@ -45,6 +46,7 @@ class TextfieldWithCounterWidget extends TextfieldWidget {
     $this->addCounterPositionSettingsFormElement($form, TRUE);
     $this->addJsPreventSubmitSettingsFormElement($form, TRUE);
     $this->addCountHtmlSettingsFormElement($form, TRUE);
+    $this->addTextCountStatusMessageSettingsFormElement($form, TRUE);
 
     return $form;
   }
@@ -58,7 +60,8 @@ class TextfieldWithCounterWidget extends TextfieldWidget {
     $this->addMaxlengthSummary($summary);
     $this->addPositionSummary($summary);
     $this->addJsSubmitPreventSummary($summary);
-    $this->addCountHtmlPreventSummary($summary);
+    $this->addCountHtmlSummary($summary);
+    $this->addTextCountStatusMessageSummary($summary);
 
     return $summary;
   }

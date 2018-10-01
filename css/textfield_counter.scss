@@ -9,6 +9,7 @@ $border-width:2px;
     border-width:$border-width;
   }
   .textfield_counter_counter {
+    .current_count,
     .remaining_count {
       color:$warning-color;
     }
@@ -22,6 +23,7 @@ $border-width:2px;
     border-width:$border-width;
   }
   .textfield_counter_counter {
+    .current_count,
     .remaining_count {
       color:$over-color
     }

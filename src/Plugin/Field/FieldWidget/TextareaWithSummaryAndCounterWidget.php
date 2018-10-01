@@ -30,6 +30,7 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
       'counter_position' => 'after',
       'js_prevent_submit' => TRUE,
       'count_html_characters' => TRUE,
+      'textcount_status_message' => self::getDefaultTextCountStatusMessage(),
     ] + parent::defaultSettings();
   }
 
@@ -44,6 +45,7 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
     $this->addCounterPositionSettingsFormElement($form);
     $this->addJsPreventSubmitSettingsFormElement($form);
     $this->addCountHtmlSettingsFormElement($form);
+    $this->addTextCountStatusMessageSettingsFormElement($form);
 
     return $form;
   }
@@ -58,7 +60,8 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
     $this->addMaxlengthSummary($summary);
     $this->addPositionSummary($summary);
     $this->addJsSubmitPreventSummary($summary);
-    $this->addCountHtmlPreventSummary($summary);
+    $this->addCountHtmlSummary($summary);
+    $this->addTextCountStatusMessageSummary($summary);
 
     return $summary;
   }

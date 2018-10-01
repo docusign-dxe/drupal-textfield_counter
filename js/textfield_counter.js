@@ -50,7 +50,7 @@
               currentLength = $("<div/>").html($(this).val()).text().length;
             }
             remaining = maxlength - currentLength;
-            counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t("Remaining: <span class='remaining_count'>@count</span>", {"@count":remaining}));
+            counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t(fieldSettings.textCountStatusMessage, {"@maxlength":maxlength , "@current_length":currentLength , "@remaining_count":remaining}));
 
             if (fieldSettings.counterPosition === "before") {
               counter.insertBefore($(this));
@@ -71,6 +71,7 @@
 
               remaining = maxlength - currentLength;
               counter.children(".remaining_count:first").text(remaining);
+              counter.children(".current_count:first").text(currentLength);
               checkClasses($(this).parent(), remaining);
             });
           }
@@ -142,6 +143,8 @@
                 // The editor.element.$ variable contains a reference to the HTML
                 // textfield. This is used to create a  jQuery object.
                 textfield = $(editor.element[elementkey]);
+                // Set the current count on the counter.
+                textfield.siblings(".textfield_counter_counter:first").children(".current_count:first").text(currentLength);
                 // Set the remaining count on the counter.
                 textfield.siblings(".textfield_counter_counter:first").children(".remaining_count:first").text(remaining);
                 // Set the classes on the parent.
