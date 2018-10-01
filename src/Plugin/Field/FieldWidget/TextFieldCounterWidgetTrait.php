@@ -252,15 +252,15 @@ trait TextFieldCounterWidgetTrait {
     $element['#attributes']['data-field-definition-id'] = $field_definition_id;
 
     $element['#attached']['library'][] = 'textfield_counter/counter';
-    $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['key'][$delta] = $key;
-    $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['maxlength'] = (int) $maxlength;
-    $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['counterPosition'] = $position;
+    $element['#attached']['drupalSettings']['textfieldCounter'][$key]['key'][$delta] = $key;
+    $element['#attached']['drupalSettings']['textfieldCounter'][$key]['maxlength'] = (int) $maxlength;
+    $element['#attached']['drupalSettings']['textfieldCounter'][$key]['counterPosition'] = $position;
 
     if ($this->getSetting('js_prevent_submit')) {
-      $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['preventSubmit'] = TRUE;
+      $element['#attached']['drupalSettings']['textfieldCounter'][$key]['preventSubmit'] = TRUE;
     }
 
-    $element['#attached']['drupalSettings']['textfieldCounter'][$field_definition_id]['countHTMLCharacters'] = $this->getSetting('count_html_characters');
+    $element['#attached']['drupalSettings']['textfieldCounter'][$key]['countHTMLCharacters'] = $this->getSetting('count_html_characters');
   }
 
   /**

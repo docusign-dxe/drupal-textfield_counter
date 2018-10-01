@@ -109,7 +109,7 @@
         $.each(settings.textfieldCounter ,function (fieldDefinitionKey, fieldSettings) {
           // Use the fieldDefinitionKey to get the HTML ID, which is used to
           // reference the editor.
-          var fieldID = $("[data-field-definition-id='" + fieldDefinitionKey + "']").attr("id");
+          var fieldID = $("." + fieldDefinitionKey + ":first").attr("id");
           if (CKEDITOR.instances[fieldID]) {
             // Add keyup listener.
             CKEDITOR.instances[fieldID].on("key", function () {
