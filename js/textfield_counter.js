@@ -37,7 +37,7 @@
       var fieldSettings = settings.textfieldCounter[key];
 
       $.each(fieldSettings.key, function (index) {
-        $("." + fieldSettings.key[index]).once("textfield-counter-text-watcher").once("textfield-counter-counter-watcher").each(function () {
+        $("." + fieldSettings.key[index]).not(".description").once("textfield-counter-text-watcher").once("textfield-counter-counter-watcher").each(function () {
           var counter, maxlength, currentLength, remaining, countHTML;
 
           maxlength = fieldSettings.maxlength;
