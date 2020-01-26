@@ -286,9 +286,16 @@ trait TextFieldCounterWidgetTrait {
    *   The field definition.
    * @param int $delta
    *   The delta (index) of the current item.
+   * @param bool $summary
+   *   Set this to TRUE for the summary field on textfields with sammriea
    */
-  public function fieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta) {
-    $maxlength = $this->getSetting('use_field_maxlength') ? $this->getFieldSetting('max_length') : $this->getSetting('maxlength');
+  public function fieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta, $summary = FALSE) {
+    if ($summary) {
+      $maxlength = $this->getSetting('summary_maxlength');
+    }
+    else {
+      $maxlength = $this->getSetting('use_field_maxlength') ? $this->getFieldSetting('max_length') : $this->getSetting('maxlength');
+    }
     $position = $this->getSetting('counter_position');
 
     $keys = [$entity->getEntityTypeId()];
@@ -304,6 +311,10 @@ trait TextFieldCounterWidgetTrait {
     $keys[] = $delta;
 
     $key = implode('-', $keys);
+
+    if ($summary) {
+      $key .= '-summary';
+    }
 
     $element['#attributes']['class'][] = $key;
     $element['#attributes']['class'][] = 'textfield-counter-element';
@@ -337,15 +348,7 @@ trait TextFieldCounterWidgetTrait {
     $input_exists = FALSE;
     $value = NestedArray::getValue($form_state->getValues(), $element['#parents'], $input_exists);
     $value = is_array($value) ? $value['value'] : $value;
-    $parts = explode(PHP_EOL, $value);
-    $newline_count = count($parts) - 1;
-    $count_html_characters = $element['#textfield-count-html'];
-    if ($count_html_characters) {
-      $value_length = Unicode::strlen($value) - $newline_count;
-    }
-    else {
-      $value_length = Unicode::strlen(strip_tags($value)) - $newline_count;
-    }
+    $value_length = self::getLengthOfSubmittedValue($value);
     if ($value_length > $element['#textfield-maxlength']) {
       $form_state->setError($element, t(
         '@name cannot be longer than %max characters but is currently %length characters long.',
@@ -356,6 +359,20 @@ trait TextFieldCounterWidgetTrait {
         ]
       ));
     }
+  }
+
+  protected function getLengthOfSubmittedValue($value) {
+    $parts = explode(PHP_EOL, $value);
+    $newline_count = count($parts) - 1;
+    $count_html_characters = $element['#textfield-count-html'];
+    if ($count_html_characters) {
+      $value_length = Unicode::strlen($value) - $newline_count;
+    }
+    else {
+      $value_length = Unicode::strlen(strip_tags($value)) - $newline_count;
+    }
+
+    return $value_length;
   }
 
   /**
