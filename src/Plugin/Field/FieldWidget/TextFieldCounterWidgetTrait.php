@@ -361,6 +361,15 @@ trait TextFieldCounterWidgetTrait {
     }
   }
 
+  /**
+   * Get the length of the submitted text value.
+   *
+   * @param string $value
+   *   The value whose length is to be calcluated.
+   *
+   * @return int
+   *   The length of the value.
+   */
   protected function getLengthOfSubmittedValue($value) {
     $parts = explode(PHP_EOL, $value);
     $newline_count = count($parts) - 1;
