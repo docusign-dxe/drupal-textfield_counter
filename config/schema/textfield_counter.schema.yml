@@ -34,6 +34,12 @@ field.widget.settings.text_textarea_with_summary_and_counter:
     summary_rows:
       type: integer
       label: 'The height of the summary in horizontal rows'
+    show_summary:
+      type: boolean
+      label: 'Always show summary'
+    summary_maxlength:
+      type: integer
+      label: 'Maximum length of the summary'
     placeholder:
       type: string
       label: 'The form element placeholder text'
