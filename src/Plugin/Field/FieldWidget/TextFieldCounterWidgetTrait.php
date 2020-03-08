@@ -348,7 +348,7 @@ trait TextFieldCounterWidgetTrait {
     $input_exists = FALSE;
     $value = NestedArray::getValue($form_state->getValues(), $element['#parents'], $input_exists);
     $value = is_array($value) ? $value['value'] : $value;
-    $value_length = self::getLengthOfSubmittedValue($value);
+    $value_length = self::getLengthOfSubmittedValue($element, $value);
     if ($value_length > $element['#textfield-maxlength']) {
       $form_state->setError($element, t(
         '@name cannot be longer than %max characters but is currently %length characters long.',
@@ -364,16 +364,19 @@ trait TextFieldCounterWidgetTrait {
   /**
    * Get the length of the submitted text value.
    *
+   * @param array $element
+   *   The form element.
    * @param string $value
    *   The value whose length is to be calcluated.
    *
    * @return int
    *   The length of the value.
    */
-  protected function getLengthOfSubmittedValue($value) {
+  protected static function getLengthOfSubmittedValue(array $element, string $value): int {
     $parts = explode(PHP_EOL, $value);
     $newline_count = count($parts) - 1;
     $count_html_characters = $element['#textfield-count-html'];
+
     if ($count_html_characters) {
       $value_length = Unicode::strlen($value) - $newline_count;
     }
