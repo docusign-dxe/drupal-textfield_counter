@@ -27,6 +27,7 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
   public static function defaultSettings() {
     return [
       'maxlength' => 0,
+      'enable_summary' => TRUE,
       'summary_maxlength' => 0,
       'counter_position' => 'after',
       'js_prevent_submit' => TRUE,
@@ -42,12 +43,52 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
 
     $form = parent::settingsForm($form, $form_state);
 
-    $this->addSummaryMaxLengthSettingsFormElement($form);
-    $this->addMaxlengthSettingsFormElement($form);
+    $form['general_header'] = [
+      '#prefix' => '<h3>',
+      '#suffix' => '</h3>',
+      '#markup' => $this->t('General Settings'),
+      '#weight' => -149,
+    ];
+
     $this->addCounterPositionSettingsFormElement($form);
+    $form['counter_position']['#weight'] = -139;
+    $this->addTextCountStatusMessageSettingsFormElement($form);
+    $form['textcount_status_message']['#weight'] = -129;
+
+    $form['summary_header'] = [
+      '#prefix' => '<h3>',
+      '#suffix' => '</h3>',
+      '#markup' => $this->t('Summary'),
+      '#weight' => -99,
+    ];
+
+    $form['enable_summary'] = [
+      '#title' => $this->t('Enable summary field'),
+      '#type' => 'checkbox',
+      '#weight' => -89,
+      '#default_value' => $this->getSetting('enable_summary'),
+      '#attributes' => [
+        'data-textfield-counter-selector' => 'enable-summary-checkbox',
+      ],
+    ];
+
+    $form['show_summary']['#weight'] = -79;
+    $form['show_summary']['#states']['visible']['[data-textfield-counter-selector="enable-summary-checkbox"]'] = ['checked' => TRUE];
+
+    $form['summary_rows']['#weight'] = -69;
+    $form['summary_rows']['#states']['visible']['[data-textfield-counter-selector="enable-summary-checkbox"]'] = ['checked' => TRUE];
+    $this->addSummaryMaxLengthSettingsFormElement($form);
+
+    $form['textarea_header'] = [
+      '#prefix' => '<h3>',
+      '#suffix' => '</h3>',
+      '#markup' => $this->t('Textarea'),
+      '#weight' => -49,
+    ];
+
+    $this->addMaxlengthSettingsFormElement($form);
     $this->addJsPreventSubmitSettingsFormElement($form);
     $this->addCountHtmlSettingsFormElement($form);
-    $this->addTextCountStatusMessageSettingsFormElement($form);
 
     return $form;
   }
@@ -57,14 +98,33 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
    */
   public function settingsSummary() {
 
-    $summary = parent::settingsSummary();
+    $summary = [];
 
-    $this->addSummaryMaxlengthSummary($summary);
-    $this->addMaxlengthSummary($summary);
     $this->addPositionSummary($summary);
+    $this->addTextCountStatusMessageSummary($summary);
+
+    $summary = array_merge($summary, parent::settingsSummary());
+
+    $textarea_rows = $summary[0];
+    unset($summary[0]);
+    $summary_rows = $summary[1];
+    unset($summary[1]);
+    unset($summary[2]);
+
+    if ($this->getSetting('enable_summary')) {
+      $summary['enable_summary'] = $this->t('Enable summary field: %enabled', ['%enabled' => $this->t('Yes')]);
+      $summary['summary_open'] = $this->t('Summary open: %open', ['%open' => ($this->getSetting('show_summary') ? $this->t('Yes') : $this->t('No'))]);
+      $summary['summary_rows'] = $summary_rows;
+      $this->addSummaryMaxlengthSummary($summary);
+    }
+    else {
+      $summary['enable_summary'] = $this->t('Enable summary field: %enabled', ['%enabled' => $this->t('No')]);
+    }
+
+    $summary['num_rows'] = $textarea_rows;
+    $this->addMaxlengthSummary($summary);
     $this->addJsSubmitPreventSummary($summary);
     $this->addCountHtmlSummary($summary);
-    $this->addTextCountStatusMessageSummary($summary);
 
     return $summary;
   }
@@ -75,10 +135,12 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
 
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
+    $element['summary']['#access'] = $this->getSetting('enable_summary');
+
+    $entity = $items->getEntity();
+    $field_defintion = $items->getFieldDefinition();
 
     if ($maxlength = $this->getSetting('maxlength')) {
-      $entity = $items->getEntity();
-      $field_defintion = $items->getFieldDefinition();
       $this->fieldFormElement($element, $entity, $field_defintion, $delta);
       $count_html_characters = $this->getSetting('count_html_characters');
       if (isset($element['value'])) {
@@ -94,8 +156,6 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
     }
 
     if ($summary_maxlength = $this->getSetting('summary_maxlength')) {
-      $entity = $items->getEntity();
-      $field_defintion = $items->getFieldDefinition();
       $this->fieldFormElement($element['summary'], $entity, $field_defintion, $delta, TRUE);
       $element['summary']['#textfield-maxlength'] = $summary_maxlength;
       $element['summary']['#textfield-count-html'] = $this->getSetting('count_html_characters');
@@ -122,6 +182,12 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
       '#min' => 0,
       '#default_value' => $this->getSetting('summary_maxlength'),
       '#description' => $this->t('Setting this value to zero will disable the counter on the summary.'),
+      '#weight' => -69,
+      '#states' => [
+        'visible' => [
+          '[data-textfield-counter-selector="enable-summary-checkbox"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
   }
 
@@ -132,10 +198,12 @@ class TextareaWithSummaryAndCounterWidget extends TextareaWithSummaryWidget {
    *   The array of summaries to which the summary should be added.
    */
   public function addSummaryMaxlengthSummary(array &$summary) {
-    $maxlength = $this->getSetting('summary_maxlength');
-    $text = $this->t('Maximum number of characters in the summary: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
+    if ($this->getSetting('show_summary')) {
+      $maxlength = $this->getSetting('summary_maxlength');
+      $text = $this->t('Maximum number of characters in the summary: %count', ['%count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
 
-    $summary['summary_maxlength'] = $text;
+      $summary['summary_maxlength'] = $text;
+    }
   }
 
 }

@@ -28,9 +28,9 @@ trait TextFieldCounterWidgetTrait {
     if ($includeDefaultSettings) {
       $form['use_field_maxlength'] = [
         '#title' => t(
-          'Set maximum number of characters to field default (@character_count characters)',
+          'Set maximum number of characters to field default (%character_count characters)',
           [
-            '@character_count' => $this->formatPlural(
+            '%character_count' => $this->formatPlural(
               $this->getFieldSetting('max_length'),
               '1 character',
               '@count characters'
@@ -189,7 +189,7 @@ trait TextFieldCounterWidgetTrait {
       '#type' => 'textarea',
       '#title' => $this->t('Message shown to users'),
       '#default_value' => $this->getSetting('textcount_status_message'),
-      '#description' => $this->t('Enter the message to show to users indicating the current status of the character count. The variables @maxlength, @current_length and @remaining_count can be used in this value. Ensure the values are wrapped in spans with their classes respectively set to <em>maxlength_count</em>, <em>current_count</em> and <em>remaining_count</em>.'),
+      '#description' => $this->t('Enter the message to show to users indicating the current status of the character count. The variables <strong>@maxlength</strong>, <strong>@current_length</strong> and <strong>@remaining_count</strong> can be used in this field. For the real-time counter to work, said variables must be wrapped in HTML span tags with their classes respectively set to <strong>maxlength_count</strong>, <strong>current_count</strong> and <strong>remaining_count</strong>.'),
     ];
 
     if ($storageSettingMaxlengthField) {
@@ -217,11 +217,11 @@ trait TextFieldCounterWidgetTrait {
    */
   public function addMaxlengthSummary(array &$summary) {
     if ($this->getSetting('use_field_maxlength')) {
-      $text = $this->t('Maximum number of characters: @count (field default)', ['@count' => $this->getFieldSetting('max_length')]);
+      $text = $this->t('Maximum number of characters: %count (field default)', ['%count' => $this->getFieldSetting('max_length')]);
     }
     else {
       $maxlength = $this->getSetting('maxlength');
-      $text = $this->t('Maximum number of characters: @count', ['@count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
+      $text = $this->t('Maximum number of characters: %count', ['%count' => ($maxlength ? $maxlength : $this->t('Disabled'))]);
     }
 
     $summary['maxlength'] = $text;
@@ -235,7 +235,7 @@ trait TextFieldCounterWidgetTrait {
    */
   public function addPositionSummary(array &$summary) {
     if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
-      $summary['counter_position'] = $this->t('Counter position: @position', ['@position' => $this->translateValue($this->getSetting('counter_position'))]);
+      $summary['counter_position'] = $this->t('Counter position: %position', ['%position' => $this->translateValue($this->getSetting('counter_position'))]);
     }
   }
 
@@ -247,7 +247,7 @@ trait TextFieldCounterWidgetTrait {
    */
   public function addJsSubmitPreventSummary(array &$summary) {
     if ($this->getSetting('maxlength') && !$this->getSetting('use_field_maxlength')) {
-      $summary['js_prevent_submit'] = $this->t('Prevent form submission when user goes over character count: @prevent', ['@prevent' => ($this->getSetting('js_prevent_submit') ? $this->t('Yes') : $this->t('No'))]);
+      $summary['js_prevent_submit'] = $this->t('Prevent form submission when user goes over character count: %prevent', ['%prevent' => ($this->getSetting('js_prevent_submit') ? $this->t('Yes') : $this->t('No'))]);
     }
   }
 
@@ -259,7 +259,7 @@ trait TextFieldCounterWidgetTrait {
    */
   public function addCountHtmlSummary(array &$summary) {
     if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
-      $summary['count_html_characters'] = $this->t('Include HTML characters in the character count: @count_html_characters', ['@count_html_characters' => ($this->getSetting('count_html_characters') ? $this->t('Yes') : $this->t('No'))]);
+      $summary['count_html_characters'] = $this->t('Include HTML characters in the character count: %count_html_characters', ['%count_html_characters' => ($this->getSetting('count_html_characters') ? $this->t('Yes') : $this->t('No'))]);
     }
   }
 
@@ -271,7 +271,7 @@ trait TextFieldCounterWidgetTrait {
    */
   public function addTextCountStatusMessageSummary(array &$summary) {
     if ($this->getSetting('maxlength') || $this->getSetting('use_field_maxlength')) {
-      $summary['textcount_status_message'] = $this->t('Status Message: @status_message', ['@status_message' => $this->getSetting('textcount_status_message')]);
+      $summary['textcount_status_message'] = $this->t('Status Message: %status_message', ['%status_message' => $this->getSetting('textcount_status_message')]);
     }
   }
 
@@ -287,7 +287,8 @@ trait TextFieldCounterWidgetTrait {
    * @param int $delta
    *   The delta (index) of the current item.
    * @param bool $summary
-   *   Set this to TRUE for the summary field on textfields with sammriea
+   *   Set this to TRUE for the summary field on textfields with the summary
+   *   enabled.
    */
   public function fieldFormElement(array &$element, EntityInterface $entity, FieldDefinitionInterface $fieldDefinition, $delta, $summary = FALSE) {
     if ($summary) {
