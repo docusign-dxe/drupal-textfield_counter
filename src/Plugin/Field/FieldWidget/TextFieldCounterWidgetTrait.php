@@ -382,7 +382,10 @@ trait TextFieldCounterWidgetTrait {
       $value_length = Unicode::strlen($value) - $newline_count;
     }
     else {
-      $value_length = Unicode::strlen(strip_tags($value)) - $newline_count;
+      $value_length = str_replace('&nbsp;', ' ', $value);
+      $value_length = trim($value_length);
+      $value_length = preg_replace("/(\r?\n|\r)+/", "\n", $value_length);
+      $value_length = Unicode::strlen(strip_tags($value_length));
     }
 
     return $value_length;

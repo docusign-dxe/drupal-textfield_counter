@@ -47,7 +47,7 @@
               currentLength = $(this).val().length;
             }
             else {
-              currentLength = $("<div/>").html($(this).val()).text().length;
+              currentLength = $("<div/>").html($(this).val()).text().trim().replace(/(\r?\n|\r)+/g, "\n").length;
             }
             remaining = maxlength - currentLength;
             counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t(fieldSettings.textCountStatusMessage, {"@maxlength":maxlength , "@current_length":currentLength , "@remaining_count":remaining}));
@@ -66,7 +66,7 @@
                 currentLength = $(this).val().length;
               }
               else {
-                currentLength = $("<div/>").html($(this).val()).text().length;
+                currentLength = $("<div/>").html($(this).val()).text().trim().replace(/(\r?\n|\r)+/g, "\n").length;
               }
 
               remaining = maxlength - currentLength;
