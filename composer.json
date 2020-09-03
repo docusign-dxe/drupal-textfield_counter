@@ -1,0 +1,7 @@
+{
+    "name": "drupal/textfield_counter",
+    "description": "JS textfield character counter",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "require": {}
+}
