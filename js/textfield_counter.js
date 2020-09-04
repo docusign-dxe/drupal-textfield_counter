@@ -47,7 +47,7 @@
               currentLength = $(this).val().length;
             }
             else {
-              currentLength = $("<div/>").html($(this).val()).text().trim().replace(/(\r?\n|\r)+/g, "\n").length;
+              currentLength = $("<div/>").html($(this).val()).text().replace(/(\r?\n|\r)+/g, "\n").length;
             }
             remaining = maxlength - currentLength;
             counter = $("<div/>", {class:"textfield_counter_counter"}).html(Drupal.t(fieldSettings.textCountStatusMessage, {"@maxlength":maxlength , "@current_length":currentLength , "@remaining_count":remaining}));
@@ -138,7 +138,7 @@
                     // 4) Multiple consecutive newlines are replaced with a single
                     // newline, so as to only count a linebreak as a single
                     // character.
-                    currentLength = $("<div/>").html(text).text().trim().replace(/(\r?\n|\r)+/g, "\n").length;
+                    currentLength = $("<div/>").html(text).text().replace(/(\r?\n|\r)+/g, "\n").length;
                   }
                   remaining = maxlength - currentLength;
                   var elementkey = "$";
