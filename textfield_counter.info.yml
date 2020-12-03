@@ -1,6 +1,7 @@
 name: Textfield Counter
 description: Creates field formatters with character counts for text fields and text areas.
 core: 8.x
+core_version_requirement: ^8 || ^9
 type: module
 
 dependencies:
