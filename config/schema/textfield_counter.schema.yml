@@ -87,9 +87,6 @@ field.widget.settings.string_textarea_with_counter:
     textcount_status_message:
       type: string
       label: 'The message shown indicating the status of the character count. The variables @maxlength, @current_length, @remaining_count'
-    textcount_status_message:
-      type: string
-      label: 'The message shown indicating the status of the character count. The variables @maxlength, @current_length, @remaining_count'
 
 field.widget.settings.string_textfield_with_counter:
   type: mapping
